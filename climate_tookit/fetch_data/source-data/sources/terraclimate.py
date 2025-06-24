@@ -1,9 +1,13 @@
-"""This module downloads data from the TerraClimate website"""
+"""This module downloads data from the TerraClimate website.
+
+Ref: https://www.climatologylab.org/wget-terraclimate.html
+
+TerraClimate provides high-resolution global monthly climate data.
+"""
 
 import logging
 from datetime import date
 from typing import Optional
-
 import requests
 
 from .utils import models
@@ -14,10 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class DownloadData(models.DataDownloadBase):
-    """Downloads data from the TerraClimate climate dataset in NetCDF format
-
-    ref: https://www.climatologylab.org/wget-terraclimate.html
-    """
+    """Downloads data from the TerraClimate climate dataset in NetCDF format."""
 
     def __init__(
         self,
@@ -37,15 +38,13 @@ class DownloadData(models.DataDownloadBase):
         self.date_to_utc = date_to_utc
 
     def _fetch_data(self, variable: str, year: int, base_url: str):
-        """Main function for downloading data from the climate database"""
-
+        """Main function for downloading a specific variable's file for a given year."""
         filename = f"TerraClimate_{variable}_{year}.nc"
         url = f"{base_url}{filename}"
         logger.info(f"Dataset being downloaded: {url}")
 
         try:
-            logger.info(f"Downloading file from: {url}")
-            response = requests.get(url, stream=True)
+            response = requests.get(url, stream=True, timeout=30)
             response.raise_for_status()
 
             with open(filename, "wb") as f:
@@ -65,9 +64,7 @@ class DownloadData(models.DataDownloadBase):
     def _download_from_date_range(
         self, from_date: date, to_date: date, variable: str, url: str
     ):
-        """Downloads datasets for a climate variable from TerraClimate given a
-        date range."""
-
+        """Downloads datasets for a climate variable from TerraClimate given a date range."""
         years = range(from_date.year, to_date.year + 1)
         for year in years:
             self._fetch_data(variable=variable, year=year, base_url=url)
@@ -77,11 +74,9 @@ class DownloadData(models.DataDownloadBase):
         settings: Settings,
         variable_type: models.VariableType,
     ):
-
+        """Download temperature data (min or max)"""
         if variable_type == models.VariableType.min:
             variable = settings.terraclimate.variable.min_temperature
-        elif variable_type == models.VariableType.max:
-            variable = settings.terraclimate.variable.max_temperature
         else:
             variable = settings.terraclimate.variable.max_temperature
 
@@ -96,37 +91,10 @@ class DownloadData(models.DataDownloadBase):
     def download_precipitation(
         self,
         settings: Settings,
-        variable_type: Optional[models.VariableType],
+        variable_type: Optional[models.VariableType] = None,
     ):
+        """Download precipitation data."""
         variable = settings.terraclimate.variable.precipitation
-        url = settings.terraclimate.url
-        self._download_from_date_range(
-            variable=variable,
-            url=url,
-            from_date=self.date_from_utc,
-            to_date=self.date_to_utc,
-        )
-
-    def download_windspeed(
-        self,
-        settings: Settings,
-        variable_type: Optional[models.VariableType],
-    ):
-        variable = settings.terraclimate.variable.precipitation
-        url = settings.terraclimate.url
-        self._download_from_date_range(
-            variable=variable,
-            url=url,
-            from_date=self.date_from_utc,
-            to_date=self.date_to_utc,
-        )
-
-    def download_solar_radiation(
-        self,
-        settings: Settings,
-        variable_type: Optional[models.VariableType],
-    ):
-        variable = settings.terraclimate.variable.solar_radiation
         url = settings.terraclimate.url
         self._download_from_date_range(
             variable=variable,
@@ -138,8 +106,9 @@ class DownloadData(models.DataDownloadBase):
     def download_soil_moisture(
         self,
         settings: Settings,
-        variable_type: Optional[models.VariableType],
+        variable_type: Optional[models.VariableType] = None,
     ):
+        """Download soil moisture data."""
         variable = settings.terraclimate.variable.soil_moisture
         url = settings.terraclimate.url
         self._download_from_date_range(
@@ -149,16 +118,41 @@ class DownloadData(models.DataDownloadBase):
             to_date=self.date_to_utc,
         )
 
+    def download_solar_radiation(
+        self,
+        settings: Settings,
+        variable_type: Optional[models.VariableType] = None,
+    ):
+        """Download solar radiation data."""
+        variable = settings.terraclimate.variable.solar_radiation
+        url = settings.terraclimate.url
+        self._download_from_date_range(
+            variable=variable,
+            url=url,
+            from_date=self.date_from_utc,
+            to_date=self.date_to_utc,
+        )
+
+    def download_windspeed(
+        self,
+        settings: Settings,
+        variable_type: Optional[models.VariableType] = None,
+    ):
+        """TerraClimate does not provide windspeed data."""
+        logger.warning("TerraClimate does not provide windspeed data.")
+
     def download_rainfall(
         self,
         settings: Settings,
-        variable_type: Optional[models.VariableType],
+        variable_type: Optional[models.VariableType] = None,
     ):
-        logger.warning("TerraClimate does not have rainfall data.")
+        """TerraClimate does not provide rainfall as a distinct variable."""
+        logger.warning("TerraClimate does not provide rainfall data separately.")
 
     def download_humidity(
         self,
         settings: Settings,
-        variable_type: Optional[models.VariableType],
+        variable_type: Optional[models.VariableType] = None,
     ):
-        logger.warning("TerraClimate does not have humidity data.")
+        """TerraClimate does not provide humidity data."""
+        logger.warning("TerraClimate does not provide humidity data.")

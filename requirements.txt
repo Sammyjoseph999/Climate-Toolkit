@@ -1,0 +1,6 @@
+cdsapi==0.7.6
+earthaccess==0.14.0
+pydantic==2.11.7
+python-dotenv==1.1.0
+PyYAML==6.0.2
+Requests==2.32.4

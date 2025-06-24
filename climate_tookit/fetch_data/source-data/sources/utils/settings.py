@@ -54,6 +54,15 @@ class TerraSettings(BaseModel):
     variable: TerraClimateVariable
 
 
+class ChirpsSettings(BaseModel):
+    base_url: str
+
+
+class TamsatSettings(BaseModel):
+    rainfall_url: str
+    soil_moisture_url: str
+
+
 class Settings(BaseModel):
     """Loads the application's settings."""
 
@@ -61,6 +70,8 @@ class Settings(BaseModel):
     era_5: Era5Settings
     imerg: ImergSettings
     terraclimate: TerraSettings
+    chirps: ChirpsSettings
+    tamsat: TamsatSettings
 
     @classmethod
     def load(cls, settings_path: Path = config_path):
@@ -71,7 +82,10 @@ class Settings(BaseModel):
 
 
 if __name__ == "__main__":
-    print(Settings.load().agera_5)
-    print(Settings.load().agera_5.dataset)
-    print(Settings.load().agera_5.request)
-    print(Settings.load().imerg.short_name.monthly)
+    s = Settings.load()
+    print(s.agera_5)
+    print(s.agera_5.dataset)
+    print(s.agera_5.request)
+    print(s.imerg.short_name.monthly)
+    print(s.chirps.base_url)
+    print(s.tamsat.rainfall_url)

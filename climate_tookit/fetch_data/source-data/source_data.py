@@ -3,11 +3,11 @@ different climate databases."""
 
 from datetime import date
 from typing import Optional
-
 from sources.agera_5 import DownloadData as DownloadAgera5
 from sources.era_5 import DownloadData as DownloadEra5
 from sources.imerg import DownloadData as DownloadImerg
 from sources.terraclimate import DownloadData as DownloadTerra
+from sources.chirps import DownloadData as DownloadChirps
 from sources.utils import models
 from sources.utils.settings import Settings
 
@@ -27,7 +27,6 @@ class SourceData:
         aggregation: Optional[models.AggregationLevel],
     ):
         self.location_coord = location_coord
-        self.variable = variable
         self.source = source
         self.aggregation = aggregation
         self.date_from_utc = date_from_utc
@@ -66,6 +65,14 @@ class SourceData:
                 aggregation=aggregation,
                 date_from_utc=date_from_utc,
                 date_to_utc=date_to_utc,
+            )
+
+        if self.source == models.ClimateDataset.chirps:
+            client = DownloadChirps(
+                location_coord=location_coord,
+                aggregation=aggregation,
+                date_from_utc=self.date_from_utc,
+                date_to_utc=self.date_to_utc,
             )
 
         self.client = client
@@ -115,7 +122,7 @@ if __name__ == "__main__":
 
     source_data = SourceData(
         location_coord=(-1.18, 36.343),
-        variable=models.ClimateVariable.precipitation,
+        source=models.ClimateDataset.imerg,
         variable_type=None,
         source=models.ClimateDataset.terraclimate,
         aggregation=None,

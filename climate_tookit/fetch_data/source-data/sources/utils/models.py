@@ -3,6 +3,9 @@
 from abc import ABC, abstractmethod
 from datetime import date
 from enum import Enum, auto
+from typing import Optional
+
+from .settings import Settings
 
 
 class VariableType(Enum):
@@ -30,6 +33,8 @@ class ClimateDataset(Enum):
     era_5 = auto()
     terraclimate = auto()
     imerg = auto()
+    chirps = auto()
+    tamsat = auto()
 
 
 class AggregationLevel(Enum):
@@ -41,7 +46,7 @@ class AggregationLevel(Enum):
 
 
 class DataDownloadBase(ABC):
-    """An abstract class for creating astandardised interface for downloading data"""
+    """An abstract class for creating a standardised interface for downloading data"""
 
     def __init__(
         self,
@@ -50,41 +55,42 @@ class DataDownloadBase(ABC):
         date_from_utc: date,
         date_to_utc: date,
     ):
-        pass
+        self.location_coord = location_coord
+        self.aggregation = aggregation
+        self.date_from_utc = date_from_utc
+        self.date_to_utc = date_to_utc
 
     @abstractmethod
-    def download_rainfall():
+    def download_rainfall(self, settings: Optional[Settings]):
         """Retrieves rainfall data from the climate database"""
-        # The parameters here can be flexible while reusing the ones initialised
         pass
 
     @abstractmethod
-    def download_temperature():
+    def download_temperature(self, settings: Optional[Settings]):
         """Retrieves temperature data from the climate database"""
-        # The parameters here can be flexible while reusing the ones initialised
         pass
 
     @abstractmethod
-    def download_precipitation():
+    def download_precipitation(self, settings: Optional[Settings]):
         """Retrieves precipitation data from the climate database"""
         pass
 
     @abstractmethod
-    def download_windspeed():
+    def download_windspeed(self, settings: Optional[Settings]):
         """Retrieves wind speed data from the climate database"""
         pass
 
     @abstractmethod
-    def download_solar_radiation():
+    def download_solar_radiation(self, settings: Optional[Settings]):
         """Retrieves solar radiation data from the climate database"""
         pass
 
     @abstractmethod
-    def download_humidity():
+    def download_humidity(self, settings: Optional[Settings]):
         """Retrieves humidity data from the climate database"""
         pass
 
     @abstractmethod
-    def download_soil_moisture():
+    def download_soil_moisture(self, settings: Optional[Settings]):
         """Retrieves soil moisture data from the climate database"""
         pass
